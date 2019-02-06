@@ -5,6 +5,8 @@ import { SeabattleGame } from './seabattle/game';
 import { Board as SeabattleBoard } from './seabattle/board';
 import { SeabattleSound } from './seabattle/sound';
 import { applyMiddleware } from 'redux';
+import { NitwitGame } from './nitwit/game';
+import { Board as NitwitBoard } from './nitwit/board';
 
 export interface IGameDef {
   code: string;
@@ -14,8 +16,8 @@ export interface IGameDef {
   bgioBoard: any;
   description: string;
   modes: GameMode[];
-  maxPlayers: 2;
-  minPlayers: 2;
+  maxPlayers: number;
+  minPlayers: number;
   enhancer?: any;
 }
 
@@ -47,9 +49,21 @@ export const GAMES_MAP: IGameDefMap = {
     description: 'Sink your enemy\'s ships!',
     enhancer: applyMiddleware(SeabattleSound),
   },
+  nitwit: {
+    code: 'nitwit',
+    name: 'NitWit',
+    bgioGame: NitwitGame,
+    minPlayers: 3,
+    maxPlayers: 6,
+    modes: [GameMode.OnlineFriend],
+    imageURL: '/thumbnail/seabattle.png',
+    bgioBoard: NitwitBoard,
+    description: 'Quip it. Quip it good!',
+  },
 };
 
 export const GAMES_LIST: IGameDef[] = [
   GAMES_MAP.chess,
   GAMES_MAP.seabattle,
+  GAMES_MAP.nitwit,
 ];

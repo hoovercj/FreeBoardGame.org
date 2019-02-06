@@ -33,9 +33,13 @@ class Main extends React.Component<{}, {}> {
   render() {
     return (
       <Switch>
+        {/* These routes come from a DB / static */}
         <Route exact={true} path="/" component={withGA(Home)} />
         <Route exact={true} path="/about" component={withGA(About)} />
         <Route path="/g/:gameCode" exact={true} component={withGA(GameInfo)} />
+
+        {/* These routes need hosted in an iframe */}
+        {/* TODO: Create an iframe that takes a GameInfo and url to an iframe and builds the correct url to host it */}
         <Route path="/g/:gameCode/:mode" exact={true} component={withGA(Game)} />
         <Route path="/g/:gameCode/:mode/:matchCode/:playerID" exact={true} component={withGA(Game)} />
         <Route component={withGA(NotFound)} />

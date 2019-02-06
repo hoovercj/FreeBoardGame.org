@@ -3,6 +3,7 @@ import { Card, CardTitle, CardText } from 'material-ui/Card';
 import Subheader from 'material-ui/Subheader';
 import AndroidIcon from 'material-ui/svg-icons/action/android';
 import GroupIcon from 'material-ui/svg-icons/social/group';
+import SettingsIcon from 'material-ui/svg-icons/action/settings';
 import { List, ListItem } from 'material-ui/List';
 import * as shortid from 'shortid';
 import * as PropTypes from 'prop-types';

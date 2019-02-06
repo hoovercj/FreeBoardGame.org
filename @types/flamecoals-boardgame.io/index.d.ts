@@ -5,7 +5,7 @@ declare module 'flamecoals-boardgame.io/ui' {
     y: number;
     originalX?: number;
     originalY?: number;
-  } 
+  }
   interface ITokenProps {
     x?: number;
     y?: number;
@@ -24,7 +24,7 @@ declare module 'flamecoals-boardgame.io/ui' {
   export class Token extends React.Component<ITokenProps, any> {
   }
   interface IGridColorMap {
-    [key: string]: string;  
+    [key: string]: string;
   }
   interface IGridProps {
     rows: number;
@@ -55,22 +55,25 @@ declare module 'flamecoals-boardgame.io/core' {
   interface IGameCtx {
     phase?: string;
     playerID?: string;
-    numPlayer: number;
+    numPlayers: number;
     turn: number;
     currentPlayer: string;
     currentPlayerMoves: number;
+    gameover: { winner: string; };
   }
   interface IGameMoves {
-    [key:  string]: (G: any, ctx: IGameCtx, ...args: any[]) => any; 
+    [key:  string]: (G: any, ctx: IGameCtx, ...args: any[]) => any;
   }
   interface IGameFlowPhases {
     [name: string]: {
       movesPerTurn?: number;
       turnOrder?: TurnOrder;
+      endTurn?: boolean;
       next?: string;
       allowedMoves?: string[];
       endPhaseIf?: (G: any, ctx: IGameCtx) => boolean;
       endGameIf?: (G: any, ctx: IGameCtx) => any;
+      onPhaseEnd?: (G: any, ctx: IGameCtx) => any;
     }
   }
   interface IGameFlowTrigger {
@@ -80,16 +83,19 @@ declare module 'flamecoals-boardgame.io/core' {
   interface IGameFlow {
     startingPhase?: string;
     movesPerTurn?: number;
+    endTurn?: boolean;
     endGameIf?: (G: any, ctx: IGameCtx) => any;
-    endTurnIf?: (G: any, ctx: IGameCtx) => boolean;
+    endTurnIf?: (G: any, ctx: IGameCtx) => boolean | { next: string };
+    onTurnBegin?: (G: any, ctx: IGameCtx) => void;
     onTurnEnd?: (G: any, ctx: IGameCtx) => void;
+    onMove?: (G: any, ctx: IGameCtx) => void;
     triggers?: IGameFlowTrigger[];
     phases?: IGameFlowPhases;
   }
   interface IGameArgs {
     name?: string;
-    setup: (numPlayers: number) => any;
-    moves: IGameMoves; 
+    setup: (G: any) => any;
+    moves: IGameMoves;
     playerView?: (G: any, ctx: IGameCtx, playerID: string) => any;
     flow?: IGameFlow;
   }
@@ -106,7 +112,7 @@ declare module 'flamecoals-boardgame.io/react' {
   }
   interface IClientArgs {
     game: any;
-    numPlayer?: number;
+    numPlayers?: number;
     board?: React.ReactNode;
     multiplayer?: boolean;
     debug?: boolean;
@@ -125,7 +131,7 @@ declare module 'flamecoals-boardgame.io/client' {
   }
   interface IClientArgs {
     game: any;
-    numPlayer?: number;
+    numPlayers?: number;
     board?: React.ReactNode;
     multiplayer?: boolean;
     debug?: boolean;
@@ -138,7 +144,7 @@ declare module 'flamecoals-boardgame.io/server' {
   import { GameObj } from 'flamecoals-boardgame.io/core';
   import * as Koa from 'koa';
   interface IServerArgs {
-    games: GameObj[] 
+    games: GameObj[]
   }
   function Server(serverArgs: IServerArgs): Koa;
   export = Server;

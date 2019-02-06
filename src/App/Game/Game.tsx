@@ -24,7 +24,7 @@ export class Game extends React.Component<IGameProps, {}> {
         matchCode,
         playerID,
       }),
-      debug: false,
+      debug: true,
     };
     if (gameDef.enhancer) {
       clientConfig.enhancer = gameDef.enhancer;
@@ -34,7 +34,9 @@ export class Game extends React.Component<IGameProps, {}> {
     }
     const App = Client(clientConfig) as any;
     return (
-      <App gameID={matchCode} playerID={playerID} />
+      <div>
+        <App gameID={matchCode} playerID={playerID || '0'} />
+      </div>
     );
   }
 }

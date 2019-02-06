@@ -25,7 +25,7 @@ export function gameBoardWrapper(args: IGameArgs) {
         alert = this._getConnectionLost();
       }
       const gameDef: IGameDef = GAMES_MAP[args.gameCode];
-      const child = React.createElement(gameDef.bgioBoard, props);
+      const child = gameDef.bgioBoard && React.createElement(gameDef.bgioBoard, props);
       if (!alert) {
         return child;
       }

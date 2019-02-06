@@ -15,7 +15,7 @@ test('render board - all states - local friend', () => {
     <Board
       G={{ pgn: '' }}
       ctx={{
-        numPlayer: 2, turn: 0, gameover: 'd',
+        numPlayers: 2, turn: 0, gameover: 'd',
         currentPlayer: '0', currentPlayerMoves: 0,
       }}
       moves={{ move: moveMock }}
@@ -28,7 +28,7 @@ test('render board - all states - local friend', () => {
   board.setProps({
     ...board.props(),
     ctx: {
-      numPlayer: 2, turn: 0, gameover: 'b',
+      numPlayers: 2, turn: 0, gameover: 'b',
       currentPlayer: '0', currentPlayerMoves: 0,
     },
   });
@@ -36,7 +36,7 @@ test('render board - all states - local friend', () => {
   board.setProps({
     ...board.props(),
     ctx: {
-      numPlayer: 2, turn: 0, gameover: 'w',
+      numPlayers: 2, turn: 0, gameover: 'w',
       currentPlayer: '0', currentPlayerMoves: 0,
     },
   });
@@ -44,7 +44,7 @@ test('render board - all states - local friend', () => {
   board.setProps({
     ...board.props(),
     ctx: {
-      numPlayer: 2, turn: 0,
+      numPlayers: 2, turn: 0,
       currentPlayer: '0', currentPlayerMoves: 0,
     },
   });
@@ -52,7 +52,7 @@ test('render board - all states - local friend', () => {
   board.setProps({
     ...board.props(),
     ctx: {
-      numPlayer: 2, turn: 1,
+      numPlayers: 2, turn: 1,
       currentPlayer: '1', currentPlayerMoves: 0,
     },
     G: { pgn: '1.f4' },
@@ -61,7 +61,7 @@ test('render board - all states - local friend', () => {
   board.setProps({
     ...board.props(),
     ctx: {
-      numPlayer: 2, turn: 0,
+      numPlayers: 2, turn: 0,
       currentPlayer: '0', currentPlayerMoves: 0,
     },
     G: { pgn: '1.f4 e5 2.g4 Qh4#' },
@@ -75,7 +75,7 @@ test('render board - all states - online friend', () => {
     <Board
       G={{ pgn: '' }}
       ctx={{
-        numPlayer: 2, turn: 0, gameover: 'd',
+        numPlayers: 2, turn: 0, gameover: 'd',
         currentPlayer: '0', currentPlayerMoves: 0,
       }}
       moves={{ move: moveMock }}
@@ -92,7 +92,7 @@ test('render board - all states - online friend', () => {
   board.setProps({
     ...board.props(),
     ctx: {
-      numPlayer: 2, turn: 0, gameover: 'b',
+      numPlayers: 2, turn: 0, gameover: 'b',
       currentPlayer: '0', currentPlayerMoves: 0,
     },
   });
@@ -100,7 +100,7 @@ test('render board - all states - online friend', () => {
   board.setProps({
     ...board.props(),
     ctx: {
-      numPlayer: 2, turn: 0, gameover: 'w',
+      numPlayers: 2, turn: 0, gameover: 'w',
       currentPlayer: '0', currentPlayerMoves: 0,
     },
   });
@@ -113,7 +113,7 @@ test('render board - all states - online friend', () => {
   board.setProps({
     ...board.props(),
     ctx: {
-      numPlayer: 2, turn: 0,
+      numPlayers: 2, turn: 0,
       currentPlayer: '0', currentPlayerMoves: 0,
     },
     G: { pgn: '1.f4 e5 2.g4 Qh4#' },
@@ -131,7 +131,7 @@ test('little game', () => {
     <Board
       G={{ pgn: '' }}
       ctx={{
-        numPlayer: 2, turn: 0,
+        numPlayers: 2, turn: 0,
         currentPlayer: '0', currentPlayerMoves: 0,
       }}
       moves={{ move: moveMock }}
@@ -165,7 +165,7 @@ test('little game', () => {
   board.setProps({
     ...board.props(),
     ctx: {
-      numPlayer: 2, turn: 1,
+      numPlayers: 2, turn: 1,
       currentPlayer: '1', currentPlayerMoves: 0,
     },
     G: { pgn: '1.f4' },
