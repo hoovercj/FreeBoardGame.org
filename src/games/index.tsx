@@ -6,7 +6,7 @@ import { Board as SeabattleBoard } from './seabattle/board';
 import { SeabattleSound } from './seabattle/sound';
 import { applyMiddleware } from 'redux';
 import { NitwitGame } from './nitwit/game';
-import { Board as NitwitBoard } from './nitwit/board';
+import { Board as NitwitBoard } from './nitwit/board/board';
 
 export interface IGameDef {
   code: string;

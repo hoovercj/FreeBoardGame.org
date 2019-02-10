@@ -30,7 +30,7 @@ Roadmap:
         * Next: if more rounds, "Respond", else "GameScore"
     * [ ] "Game score". After all the rounds have completed, the total game score is shown. May be folded into "Round score".
 * Board:
-    * [ ] "Respond". Show the prompt text, an input, and a "waiting..." after answering all prompts
+    * [X] "Respond". Show the prompt text, an input, and a "waiting..." after answering all prompts
     * [ ] "Vote". Show the prompt text and the list of answers. If you answered it, show a "waiting for votes" message instead.
     * [ ] "Prompt Score". Show the prompt, each answer, and the players who voted for them and the number of points that earned the player
     * [ ] "Round Score". Show each player, their score before the round, the points they earned that round, and their total score.
