@@ -18,7 +18,7 @@
     "verify-tsfmt": "tsfmt --verify",
     "lint": "tslint --fix -c tslint.json 'src/**/*.ts*'",
     "verify-lint": "tslint -c tslint.json 'src/**/*.ts*'",
-    "pm2": "pm2"
+    "pm2": "pm2",
     "webpack:watch": "webpack --watch --progress --config dev.webpack.config.js"
   },
   "pre-commit": [
