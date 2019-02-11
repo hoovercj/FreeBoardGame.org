@@ -1,10 +1,9 @@
 import * as React from 'react';
 
-import { GameDarkSublayout } from '../../../App/Game/GameDarkSublayout';
-import { IGameState, IPromptState } from '../game';
+import { IPromptState } from '../game';
 import { IBoardProps } from './board';
-import { IGameCtx } from 'flamecoals-boardgame.io/core';
 import { InputQuestion } from '../components/input-question';
+import { Waiting } from '../components/waiting';
 
 interface IRespondPhaseState {
   currentPrompt: IPromptState;
@@ -23,7 +22,24 @@ export class RespondPhase extends React.Component<IBoardProps, IRespondPhaseStat
     if (this.state.currentPrompt) {
       return this.renderGetResponse();
     } else {
-      return this.renderWaiting();
+      return <Waiting />;
+    }
+  }
+
+  componentDidUpdate(prevProps: IBoardProps, prevState: IRespondPhaseState): void {
+    const hasCurrentPromptFromState = !!this.state.currentPrompt;
+    const currentPromptFromGameProps = hasCurrentPromptFromState && this.props.G.rounds[this.props.G.roundIndex]
+      .find(prompt => prompt.promptId === this.state.currentPrompt.promptId);
+    const hasCurrentPromptFromGameProps = !!currentPromptFromGameProps;
+
+    const currentPromptIsAnswered = hasCurrentPromptFromGameProps
+      && currentPromptFromGameProps.answers[this.props.playerID] !== undefined;
+
+    if (currentPromptIsAnswered) {
+      const nextPrompt = this.getNextUnansweredPrompt();
+      if (!nextPrompt || nextPrompt.promptId !== currentPromptFromGameProps.promptId) {
+        this.setState({ currentPrompt: nextPrompt });
+      }
     }
   }
 
@@ -32,19 +48,13 @@ export class RespondPhase extends React.Component<IBoardProps, IRespondPhaseStat
     this.props.moves.answerMove(promptId, playerId, answer);
   }
 
-  private renderWaiting = (): JSX.Element => {
-    return (
-      <h1>Waiting for other players...</h1>
-    );
-  }
-
   private renderGetResponse = (): JSX.Element => {
     const { promptId, promptText } = this.state.currentPrompt;
     return (
       <InputQuestion
-        id={promptId}
+        questionId={promptId}
         onAnswer={this.onSubmitAnswer}
-        question={promptText}
+        questionText={promptText}
       />
     );
   }
@@ -52,7 +62,7 @@ export class RespondPhase extends React.Component<IBoardProps, IRespondPhaseStat
   private getNextUnansweredPrompt = (): IPromptState => {
     return this.props.G.rounds[this.props.G.roundIndex].find(
       p =>
-        p.assignedPlayers.indexOf(this.props.playerID) >= 0 &&
+        p.answeringPlayers.includes(this.props.playerID) &&
         p.answers[this.props.playerID] === undefined,
     );
   }

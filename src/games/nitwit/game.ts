@@ -7,6 +7,7 @@
  */
 
 import { Game, IGameCtx, TurnOrder } from 'flamecoals-boardgame.io/core';
+import { randomIntFromInterval } from './utils/random';
 
 export type Shuffler = <T>(array: T[]) => T[];
 
@@ -16,6 +17,7 @@ type PromptId = string;
 export interface IGameState {
   rounds: RoundState[];
   roundIndex: number;
+  votingPrompt?: IPromptState;
 }
 
 export type RoundState = IPromptState[];
@@ -23,12 +25,13 @@ export type RoundState = IPromptState[];
 export interface IPromptState {
   promptId: PromptId;
   promptText: PlayerId;
-  assignedPlayers: string[];
+  answeringPlayers: string[];
+  votingPlayers: string[];
   answers: { [playerId: string]: string };
   votes: { [voterId: string]: PlayerId };
 }
 
-const prompts = [
+const GAME_PROMPTS = [
   'Title of the HBO mini-series about Trump\'s Presidency',
   'The worst thing your partner could say to you in the bedroom',
   'The worst thing your partner could scream from the bathroom',
@@ -68,28 +71,40 @@ const generateRounds = (
 
   return roundTypes.map((roundType: RoundType): RoundState => {
     const roundState: RoundState = [];
-    for (let i = 0; i < inputPlayers.length; i++) {
-      let assignedPlayers: PlayerId[];
+    let answeringPlayers: PlayerId[];
+    let votingPlayers: PlayerId[];
 
-      switch (roundType) {
-        case RoundType.Pair:
-          assignedPlayers = [shuffledPlayers[i], shuffledPlayers[(i + 1) % shuffledPlayers.length]];
-          break;
-        default:
-        case RoundType.All:
-          assignedPlayers = shuffledPlayers;
-          break;
-      }
+    switch (roundType) {
+      case RoundType.Pair:
+        for (let i = 0; i < inputPlayers.length; i++) {
+          answeringPlayers = [shuffledPlayers[i], shuffledPlayers[(i + 1) % shuffledPlayers.length]];
+          votingPlayers = shuffledPlayers.filter(player => !answeringPlayers.includes(player));
+          roundState.push({
+            promptId: String(promptIndex++),
+            promptText: shuffledPrompts.pop(),
+            answeringPlayers: answeringPlayers,
+            votingPlayers: votingPlayers,
+            answers: {},
+            votes: {},
+          });
+        }
 
-      roundState.push({
-        promptId: String(promptIndex++),
-        promptText: shuffledPrompts.pop(),
-        assignedPlayers: assignedPlayers,
-        answers: {},
-        votes: {},
-      });
+        break;
+      default:
+      case RoundType.All:
+        answeringPlayers = shuffledPlayers;
+        votingPlayers = shuffledPlayers;
+
+        roundState.push({
+          promptId: String(promptIndex++),
+          promptText: shuffledPrompts.pop(),
+          answeringPlayers: answeringPlayers,
+          votingPlayers: votingPlayers,
+          answers: {},
+          votes: {},
+        });
+        break;
     }
-
     return roundState;
   });
 };
@@ -105,6 +120,26 @@ const shuffle: Shuffler = <T>(array: T[]): T[] => {
   return array;
 };
 
+const getVotingPrompt = (G: IGameState, ctx: IGameCtx): IPromptState => {
+  // If there is a prompt but not everyone has voted,
+  // keep using this prompt
+  if (G.votingPrompt && !everyoneVoted(G.votingPrompt)) {
+    console.log(`getVotingPrompt: There is a prompt and not everyone has voted`); // tslint:disable-line
+    return G.votingPrompt;
+  }
+
+  // If everyone has already voted or there is no voting prompt,
+  // randomly choose a prompt from the set of unanswered prompts
+  // so players cannot deduce whose prompts are whose based on the order of the
+  // voting each round.
+  const unvotedPrompts = G.rounds[G.roundIndex].filter(prompt => Object.keys(prompt.votes).length === 0);
+  return unvotedPrompts[randomIntFromInterval(0, unvotedPrompts.length - 1)];
+};
+
+const everyoneVoted = ({ votes, votingPlayers }: IPromptState): boolean => {
+  return !votingPlayers || !votingPlayers.some(playerId => votes[playerId] === undefined);
+};
+
 export const NitwitGame = Game({
   name: 'nitwit',
 
@@ -115,7 +150,7 @@ export const NitwitGame = Game({
     }
     return {
       roundIndex: 0,
-      rounds: generateRounds(prompts, playerIds, [RoundType.Pair, RoundType.Pair, RoundType.All]),
+      rounds: generateRounds(GAME_PROMPTS, playerIds, [RoundType.Pair, RoundType.Pair, RoundType.All]),
     };
   },
 
@@ -128,7 +163,7 @@ export const NitwitGame = Game({
         return; // Cannot answer this prompt this round
       }
 
-      if (prompt.assignedPlayers.indexOf(playerId) < 0) {
+      if (!prompt.answeringPlayers.includes(playerId)) {
         return; // Player cannot answer this prompt
       }
 
@@ -143,24 +178,32 @@ export const NitwitGame = Game({
       voterId: PlayerId,
       votingForId: PlayerId,
     ): void => {
-      const prompt = G.rounds[G.roundIndex].find(p => p.promptId === promptId);
-      if (!prompt) {
+      if (!G.votingPrompt) {
         return; // Cannot answer this prompt this round
       }
 
-      if (prompt.assignedPlayers.indexOf(votingForId) < 0) {
-        return; // Cannot vote for this player for this prompt
+      if (!G.votingPrompt.votingPlayers.includes(voterId)) {
+        return; // This player cannot vote for this prompt
       }
 
-      if (prompt.assignedPlayers.indexOf(voterId) >= 0) {
-        return; // Player assigned to this prompt cannot vote on it
+      if (voterId === votingForId) {
+        return; // Player cannot vote for their own prompt
       }
 
-      if (prompt.votes[voterId] !== undefined) {
+      if (G.votingPrompt.votes[voterId] !== undefined) {
         return; // Player has already voted for this prompt
       }
 
-      prompt.votes[voterId] = votingForId;
+      // TODO: I am duplicating the state in two places.
+      // 1) In the "votingPrompt" field which holds the prompt
+      // players are currently voting on
+      // 2) In the master "rounds" object.
+      // I can probably avoid doing this by either:
+      // * Doing this only after the phase ends and all votes are in
+      // * Using only an ID in the "votingPrompt" field and referencing
+      // the master rounds object directly
+      G.votingPrompt.votes[voterId] = votingForId;
+      G.rounds[G.roundIndex].find(p => p.promptId === promptId).votes = G.votingPrompt.votes;
     },
   },
   flow: {
@@ -170,25 +213,47 @@ export const NitwitGame = Game({
         allowedMoves: ['answerMove'],
         turnOrder: TurnOrder.ANY,
         next: 'votePhase',
-        endPhaseIf: (G: IGameState): boolean => {
+        onPhaseEnd: () => {
+          console.log('OnPhaseEnd: respondPhase'); // tslint:disable-line
+        },
+        onPhaseBegin: () => {
+          console.log('OnPhaseBegin: respondPhase'); // tslint:disable-line
+        },
+        endPhaseIf: (G: IGameState) => {
           const someUnanswered = G.rounds[G.roundIndex].some(promptState =>
-            promptState.assignedPlayers.some(
+            promptState.answeringPlayers.some(
               player => promptState.answers[player] === undefined,
             ),
           );
 
-          return !someUnanswered;
+          return someUnanswered ? false : { next: 'votePhase' };
         },
       },
       votePhase: {
         allowedMoves: ['voteMove'],
         turnOrder: TurnOrder.ANY,
         next: 'respondPhase',
+        onPhaseBegin: (G: IGameState, ctx: IGameCtx) => {
+          console.log('OnPhaseBegin: votePhase'); // tslint:disable-line
+          G.votingPrompt = getVotingPrompt(G, ctx);
+          console.log(`OnPhaseBegin - VotingPrompt: ${G.votingPrompt && G.votingPrompt.promptId}`); // tslint:disable-line
+        },
+        onPhaseEnd: (G: IGameState, ctx: IGameCtx) => {
+          console.log('OnPhaseEnd: votePhase'); // tslint:disable-line
+          console.log(G.roundIndex); // tslint:disable-line
+          G.roundIndex++;
+          console.log(G.roundIndex); // tslint:disable-line
+        },
+        onMove: (G: IGameState, ctx: IGameCtx) => {
+          // Update the prompt in case this vote was the last vote
+          G.votingPrompt = getVotingPrompt(G, ctx);
+          console.log(`OnMove - VotingPrompt: ${G.votingPrompt && G.votingPrompt.promptId}`); // tslint:disable-line
+        },
         endPhaseIf: (G: IGameState, ctx: IGameCtx): boolean => {
           const someoneDidNotVote = G.rounds[G.roundIndex].some(promptState => {
             for (let i = 0; i < ctx.numPlayers; i++) {
               const isAssignedPlayer =
-                promptState.assignedPlayers.indexOf(String(i)) >= 0;
+                promptState.answeringPlayers.includes(String(i));
               const voted = promptState.votes[String(i)] !== undefined;
               if (!isAssignedPlayer && !voted) {
                 return true;

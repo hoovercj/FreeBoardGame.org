@@ -5,6 +5,7 @@ import { IGameState } from '../game';
 import { IGameCtx } from 'flamecoals-boardgame.io/core';
 import { RespondPhase } from './respond-phase';
 import { PhaseContainer } from '../components/phase-container';
+import { VotePhase } from './vote-phase';
 
 export interface IBoardProps {
   G: IGameState;
@@ -37,6 +38,12 @@ export class Board extends React.Component<IBoardProps, IBoardState> {
       return (
         <PhaseContainer>
           <RespondPhase {...this.props} />
+        </PhaseContainer>
+      );
+    } else if (ctx.phase === 'votePhase') {
+      return (
+        <PhaseContainer>
+          <VotePhase {...this.props} />
         </PhaseContainer>
       );
     } else {

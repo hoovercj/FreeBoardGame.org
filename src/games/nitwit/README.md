@@ -12,7 +12,7 @@ Roadmap:
         * Moves: "answerPrompt"
         * End If: All players have answered all prompts
         * Next: Vote
-    * [ ] "Vote" phase.
+    * [X] "Vote" phase.
         * Each prompt for the round is presented to all the players who did not answer it. These players all vote for their favorite.
         * Turn Order: ANY_ONCE
         * Moves: "votePrompt:

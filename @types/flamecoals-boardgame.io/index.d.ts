@@ -71,9 +71,11 @@ declare module 'flamecoals-boardgame.io/core' {
       endTurn?: boolean;
       next?: string;
       allowedMoves?: string[];
-      endPhaseIf?: (G: any, ctx: IGameCtx) => boolean;
+      endPhaseIf?: (G: any, ctx: IGameCtx) => boolean | { next: string};
       endGameIf?: (G: any, ctx: IGameCtx) => any;
+      onPhaseBegin?: (G: any, ctx: IGameCtx) => any;
       onPhaseEnd?: (G: any, ctx: IGameCtx) => any;
+      onMove?: (G: any, ctx: IGameCtx) => any;
     }
   }
   interface IGameFlowTrigger {

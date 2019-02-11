@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Client } from 'flamecoals-boardgame.io/react';
+import { Client, IClientArgs } from 'flamecoals-boardgame.io/react';
 import { IGameDef, GAMES_MAP } from '../../games';
 import { gameBoardWrapper } from './GameBoardWrapper';
 import { GameMode } from './GameModePicker';
@@ -16,7 +16,7 @@ export class Game extends React.Component<IGameProps, {}> {
     const matchCode = this.props.match.params.matchCode;
     const playerID = this.props.match.params.playerID;
     const gameDef: IGameDef = GAMES_MAP[gameCode];
-    const clientConfig: any = {
+    const clientConfig: IClientArgs = {
       game: gameDef.bgioGame,
       board: gameBoardWrapper({
         gameCode,
@@ -31,7 +31,9 @@ export class Game extends React.Component<IGameProps, {}> {
     }
     if (mode === GameMode.OnlineFriend) {
       clientConfig.multiplayer = true;
+      clientConfig.numPlayers = gameDef.minPlayers;
     }
+    console.log('numPlayers:' + clientConfig.numPlayers); // tslint:disable-line
     const App = Client(clientConfig) as any;
     return (
       <div>

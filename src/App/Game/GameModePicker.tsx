@@ -19,6 +19,7 @@ export enum GameMode {
   MediumAI = 'mediumAI',
   HardAI = 'hardAI',
   OnlineFriend = 'online',
+  OnlineMultiplayer = 'onlineMultiplayer',
   LocalFriend = 'local',
 }
 
@@ -62,6 +63,10 @@ export class GameModePicker extends React.Component<IGameModePickerProps, {}> {
         text = 'Online Friend';
         icon = <GroupIcon />;
         break;
+      case GameMode.OnlineMultiplayer:
+        text = 'Online Multiplayer';
+        icon = <GroupIcon />;
+        break;
     }
     return (
       <ListItem
@@ -91,6 +96,8 @@ export class GameModePicker extends React.Component<IGameModePickerProps, {}> {
         return `/g/${this.props.gameCode}/local`;
       case GameMode.OnlineFriend:
         return `/g/${this.props.gameCode}/online/${uid}/0`;
+      case GameMode.OnlineFriend:
+        return `/g/${this.props.gameCode}/multi/${uid}/`;
     }
   }
 }

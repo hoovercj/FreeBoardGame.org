@@ -1,9 +1,9 @@
 import * as React from 'react';
 
 interface IInputQuestionProps {
-  id: string;
-  question: string;
-  onAnswer: (id: string, answer: string) => void;
+  questionId: string;
+  questionText: string;
+  onAnswer: (questionId: string, answerText: string) => void;
 }
 
 const containerStyles: React.CSSProperties = {
@@ -24,10 +24,10 @@ const inputStyles: React.CSSProperties = {
 
 export class InputQuestion extends React.Component<IInputQuestionProps, {}> {
   render() {
-    const inputId = `prompt_input_${this.props.id}`;
+    const inputId = `prompt_input_${this.props.questionId}`;
     return (
       <div style={containerStyles}>
-        <label htmlFor={inputId} style={labelStyles}>{this.props.question}</label>
+        <label htmlFor={inputId} style={labelStyles}>{this.props.questionText}</label>
         <input
           type="text"
           id={inputId}
@@ -46,7 +46,7 @@ export class InputQuestion extends React.Component<IInputQuestionProps, {}> {
 
       const answer = event.currentTarget.value;
       event.currentTarget.value = '';
-      this.props.onAnswer(this.props.id, answer);
+      this.props.onAnswer(this.props.questionId, answer);
     }
   }
 }
